@@ -4,10 +4,12 @@ using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.SceneManagement;
 
-[System.Serializable] public class EventGameState : UnityEvent<GameManager.GameState, GameManager.GameState> { }
+// [System.Serializable] public class EventGameState : UnityEvent<GameManager.GameState, GameManager.GameState> { }
 
 public class GameManager : Singleton<GameManager>
 {
+
+    [System.Serializable] public class EventGameState : UnityEvent<GameState, GameState> { }
 
     public enum GameState
     {
@@ -21,7 +23,7 @@ public class GameManager : Singleton<GameManager>
 
     List<GameObject> m_InstancedSystemPrebas;
     List<AsyncOperation> m_LoadOperation;
-    GameState m_CurrentGameState = GameState.PREGAME;
+    GameState m_CurrentGameState = GameState.RUNNING;
 
     string m_CurrentLevelName = string.Empty;
 
@@ -38,6 +40,9 @@ public class GameManager : Singleton<GameManager>
         m_LoadOperation = new List<AsyncOperation>();
 
         InstantiateSystemPrefabs();
+        // StartGame();
+
+        Debug.Log(m_CurrentGameState);
     }
 
     // Update is called once per frame
@@ -48,9 +53,7 @@ public class GameManager : Singleton<GameManager>
             return;
 
         if (Input.GetKeyDown(KeyCode.Escape))
-        {
             TogglePause();
-        }
     }
 
     void OnLoadOperatoinComplete(AsyncOperation asyncOperation)
@@ -59,10 +62,10 @@ public class GameManager : Singleton<GameManager>
         {
             m_LoadOperation.Remove(asyncOperation);
 
-            if (m_LoadOperation.Count == 0)
-            {
-                UpdateGameState(GameState.RUNNING);
-            }
+            //if (m_LoadOperation.Count == 0)
+            //{
+            //    UpdateGameState(GameState.RUNNING);
+            //}
         }
         Debug.Log("Load completed");
     }
@@ -147,11 +150,12 @@ public class GameManager : Singleton<GameManager>
 
     public void StartGame()
     {
-        LoadLevel("Main");
+        LoadLevel("Level_01");
     }
 
     public void TogglePause()
     {
+        Debug.Log("Escape Initialized Pause Menu");
         UpdateGameState(
             m_CurrentGameState == GameState.RUNNING ? GameState.PAUSED : GameState.RUNNING
         );
