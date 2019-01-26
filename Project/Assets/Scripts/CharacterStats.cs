@@ -15,6 +15,11 @@ public class CharacterStats : Singleton<CharacterStats>
             m_CharacterDefinition.m_MaxHealth = 100;
             m_CharacterDefinition.m_CurrentHealth = 100;
         }
+
+        if(m_CharacterDefinition.m_SaveDataOnClose)
+        {
+            m_CharacterDefinition.SaveCharacterStatData();
+        }
     }
     #endregion
 

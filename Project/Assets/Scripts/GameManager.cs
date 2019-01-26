@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
@@ -23,7 +24,7 @@ public class GameManager : Singleton<GameManager>
 
     List<GameObject> m_InstancedSystemPrebas;
     List<AsyncOperation> m_LoadOperation;
-    GameState m_CurrentGameState = GameState.RUNNING;
+    GameState m_CurrentGameState = GameState.PREGAME;
 
     string m_CurrentLevelName = string.Empty;
 
@@ -42,6 +43,7 @@ public class GameManager : Singleton<GameManager>
         InstantiateSystemPrefabs();
         // StartGame();
 
+        LoadingScreen.Instance.gameObject.SetActive(false);
         Debug.Log(m_CurrentGameState);
     }
 
@@ -62,10 +64,10 @@ public class GameManager : Singleton<GameManager>
         {
             m_LoadOperation.Remove(asyncOperation);
 
-            //if (m_LoadOperation.Count == 0)
-            //{
+            if (m_LoadOperation.Count == 0)
+            {
             //    UpdateGameState(GameState.RUNNING);
-            //}
+            }
         }
         Debug.Log("Load completed");
     }
@@ -114,15 +116,51 @@ public class GameManager : Singleton<GameManager>
 
     public void LoadLevel(string levelName)
     {
+        StartCoroutine(LoadSceneWithLoading(levelName));
+        //AsyncOperation asyncOperation = SceneManager.LoadSceneAsync(levelName, LoadSceneMode.Additive);
+        //if (asyncOperation == null)
+        //{
+        //    Debug.LogError("[GameManager] Load to load level " + levelName);
+        //    return;
+        //}
+        //asyncOperation.completed += OnLoadOperatoinComplete;
+        //m_LoadOperation.Add(asyncOperation);
+        //m_CurrentLevelName = levelName;
+    }
+
+    IEnumerator LoadSceneWithLoading(string levelName)
+    {
+        yield return null;
+        LoadingScreen.Instance.gameObject.SetActive(true);
+        //yield return new WaitForSeconds(3);
+
         AsyncOperation asyncOperation = SceneManager.LoadSceneAsync(levelName, LoadSceneMode.Additive);
         if (asyncOperation == null)
         {
             Debug.LogError("[GameManager] Load to load level " + levelName);
-            return;
+            yield return null;
         }
         asyncOperation.completed += OnLoadOperatoinComplete;
         m_LoadOperation.Add(asyncOperation);
         m_CurrentLevelName = levelName;
+
+        asyncOperation.allowSceneActivation = false;
+
+        while (!asyncOperation.isDone)
+        {
+            LoadingScreen.Instance.m_LoadingProgress.text = (asyncOperation.progress * 100) + "%";
+
+            if (asyncOperation.progress >= 0.9f)
+            {
+                LoadingScreen.Instance.gameObject.SetActive(false);
+                UIManager.Instance.gameObject.SetActive(false);
+                asyncOperation.allowSceneActivation = true;
+
+            }
+
+            yield return null;
+        }
+
     }
 
     public void UnloadLevel(string levelName)

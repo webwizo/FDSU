@@ -25,12 +25,17 @@ public class PlayerController : MonoBehaviour
 
     private void Attach()
     {
-        m_IsAttacking |= Input.GetKeyDown(KeyCode.Space);
+        //m_IsAttacking |= Input.GetKeyDown(KeyCode.Space);
 
-        if (Input.GetKeyUp(KeyCode.Space) && m_IsAttacking)
-            m_IsAttacking = false;
+        //if (Input.GetKeyUp(KeyCode.Space) && m_IsAttacking)
+        //    m_IsAttacking = false;
 
-        m_Animator.SetBool("Attack", m_IsAttacking);
+        //m_Animator.SetBool("Attack", m_IsAttacking);
+
+        if(Input.GetKey(KeyCode.JoystickButton9))
+        {
+            Debug.Log("Press Square");
+        }
 
 
     }
@@ -38,13 +43,16 @@ public class PlayerController : MonoBehaviour
     private void Move()
     {
         float xAxis = Input.GetAxis("Horizontal");
+        float yAxix = Input.GetAxis("Vertical");
 
-        if (xAxis > 0)
-            transform.rotation = Quaternion.Euler(0, 90, 0);
+        transform.Translate(new Vector3(xAxis, 0, yAxix));
 
-        if (xAxis < 0)
-            transform.rotation = Quaternion.Euler(0, -90, 0);
+        //if (xAxis > 0)
+        //    transform.rotation = Quaternion.Euler(0, 90, 0);
 
-        m_Animator.SetFloat("Walking", Mathf.Abs(xAxis));
+        //if (xAxis < 0)
+        //    transform.rotation = Quaternion.Euler(0, -90, 0);
+
+        //m_Animator.SetFloat("Walking", Mathf.Abs(xAxis));
     }
 }
